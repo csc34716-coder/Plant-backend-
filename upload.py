@@ -8,7 +8,8 @@ UPLOAD_FOLDER = "uploads"
 
 @upload_bp.route("/upload", methods=["POST"])
 def upload_image():
-    
+    print("HEADERS:", request.headers)
+    print("FILES:", request.files)
     if 'image' not in request.files:
         return jsonify({"error": "No image"}), 400
 
