@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from config import Config
-from routes.upload import upload_bp
+from upload import upload_bp
 
 app = Flask(__name__)
 CORS(app)
