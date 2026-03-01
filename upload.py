@@ -25,3 +25,15 @@ def upload_image():
 
     return jsonify({
     "message": "uploaded"})
+from ai_service import analyze_plant
+
+@app.route("/upload", methods=["POST"])
+def upload():
+    file = request.files["file"]
+
+    filepath = "temp.jpg"
+    file.save(filepath)
+
+    result = analyze_plant(filepath)
+
+    return {"result": result}
