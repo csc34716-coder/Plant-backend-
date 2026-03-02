@@ -6,17 +6,18 @@ upload_bp = Blueprint("upload", __name__)
 
 UPLOAD_FOLDER = "uploads"
 
+# ✅ IMPORTANT FIX
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 @upload_bp.route("/upload", methods=["POST"])
 def upload_image():
     print("HEADERS:", request.headers)
     print("FILES:", request.files)
+
     if 'image' not in request.files:
         return jsonify({"error": "No image"}), 400
 
     file = request.files['image']
-
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
 
     name = file.filename
     filepath = os.path.join(UPLOAD_FOLDER, name)
