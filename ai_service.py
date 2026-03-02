@@ -5,7 +5,7 @@ import base64
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 def analyze_plant(image_path):
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     with open(image_path, "rb") as img:
         image_data = img.read()
