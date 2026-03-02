@@ -6,15 +6,23 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 def analyze_plant(image_path):
-    with open(image_path, "rb") as img:
-        image_bytes = img.read()
+    try:
+        with open(image_path, "rb") as img:
+            image_bytes = img.read()
 
-    response = model.generate_content([
-        "Is this plant healthy or diseased? Answer in one line.",
-        {
-            "mime_type": "image/jpeg",
-            "data": image_bytes
-        }
-    ])
+        response = model.generate_content([
+            "Is this plant healthy or diseased? Answer in one line.",
+            {
+                "mime_type": "image/jpeg",
+                "data": image_bytes
+            }
+        ])
 
-    return response.text
+        # SAFE RETURN
+        if hasattr(response, "text"):
+            return response.text
+        else:
+            return str(response)
+
+    except Exception as e:
+        return f"ERROR: {str(e)}"
