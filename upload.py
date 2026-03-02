@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 import os
 from ai_service import analyze_plant
 
-upload_bp = Blueprint("upload", __name__)
+upload_bp = Blueprint("upload", __name__, url_prefix="/api")
 
 UPLOAD_FOLDER = "uploads"
 
