@@ -1,26 +1,20 @@
 import google.generativeai as genai
-from flask import Flask, request, jsonify
+import os
 
-app = Flask(__name__)
-
-genai.configure(api_key="YOUR_API_KEY")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
-@app.route("/", methods=["GET"])
-def home():
-    return "Backend running"
+def analyze_plant(image_path):
+    with open(image_path, "rb") as img:
+        image_bytes = img.read()
 
-@app.route("/upload", methods=["POST"])
-def upload():
-    file = request.files['image']
-    
     response = model.generate_content([
-        "Describe this image",
-        file.read()
+        "Is this plant healthy or diseased? Answer in one line.",
+        {
+            "mime_type": "image/jpeg",
+            "data": image_bytes
+        }
     ])
-    
-    return jsonify({
-        "message": "uploaded",
-        "result": response.text
-    })
+
+    return response.text
