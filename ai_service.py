@@ -3,7 +3,7 @@ import os
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-model = genai.GenerativeModel("gemini-2.0-flash")
+model = genai.GenerativeModel("Gemini 2.5 Flash-Lite")
 
 def analyze_plant(image_path):
     try:
