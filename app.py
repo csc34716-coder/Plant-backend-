@@ -4,7 +4,7 @@ from config import Config
 from upload import upload_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://plant-ai-app.vercel.app/"}}, supports_credentials=True)
 
 # Load config
 app.config.from_object(Config)
