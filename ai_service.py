@@ -32,6 +32,10 @@ def analyze_plant(image_path):
 
         raw_text = response.text.strip()
 
+# ✅ REMOVE ```json and ```
+        if raw_text.startswith("```"):
+            raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+        print("CLEAN AI:", raw_text)
         # ✅ JSON parse try
         try:
             return json.loads(raw_text)
