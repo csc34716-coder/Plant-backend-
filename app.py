@@ -4,7 +4,9 @@ from config import Config
 from upload import upload_bp
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://plant-ai-app.vercel.app"}}, supports_credentials=True)
+# इसे पुराने CORS लाइन से बदलें
+CORS(app, resources={r"/*": {"origins": "*"}}) 
+
 
 
 # Load config
