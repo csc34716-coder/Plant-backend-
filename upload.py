@@ -5,55 +5,49 @@ import cloudinary
 import cloudinary.uploader
 from ai_service import analyze_plant
 
-upload_bp = Blueprint("upload", name)
+upload_bp = Blueprint("upload", __name__)
 
-#Cloudinary config (use environment variables)
-
+# Cloudinary config
 cloudinary.config(
-cloud_name=os.getenv("257257425648316"),
-api_key=os.getenv("drtcekb5x"),
-api_secret=os.getenv("apieZE8537oBAXVG9WXUS13xDqE")
+    cloud_name=os.getenv("drtcekb5x"),
+    api_key=os.getenv("257257425648316"),
+    api_secret=os.getenv("apieZE8537oBAXVG9WXUS13xDqE")
 )
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
 @upload_bp.route("/upload", methods=["POST"])
 def upload_image():
 
-if 'image' not in request.files:
-    return jsonify({"success": False, "error": "No image uploaded"}), 400
+    if 'image' not in request.files:
+        return jsonify({"success": False, "error": "No image uploaded"}), 400
 
-file = request.files['image']
+    file = request.files['image']
+    user_query = request.form.get("user_query", "")
 
-# user question from frontend
-user_query = request.form.get("query", "")
+    # save temporary image
+    filename = str(uuid.uuid4()) + ".jpg"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(filepath)
 
-# save temporary file
-filename = str(uuid.uuid4()) + ".jpg"
-filepath = os.path.join(UPLOAD_FOLDER, filename)
+    try:
+        # upload to cloudinary
+        upload_result = cloudinary.uploader.upload(filepath)
+        image_url = upload_result["secure_url"]
 
-file.save(filepath)
+        # analyze plant
+        result = analyze_plant(filepath, user_query)
 
-try:
+        return jsonify({
+            "success": True,
+            "image_url": image_url,
+            "data": result
+        })
 
-    # upload image to cloudinary
-    upload_result = cloudinary.uploader.upload(filepath)
-    image_url = upload_result["secure_url"]
-
-    # AI analysis
-    result = analyze_plant(filepath, user_query)
-
-    return jsonify({
-        "success": True,
-        "image_url": image_url,
-        "status": result.get("status"),
-        "disease": result.get("disease"),
-        "treatment": result.get("treatment")
-    })
-
-except Exception as e:
-    return jsonify({
-        "success": False,
-        "error": str(e)
-    }), 500
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
