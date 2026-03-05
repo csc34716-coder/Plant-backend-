@@ -4,7 +4,7 @@ import json
 
 Gemini API key
 
-genai.configure(api_key=os.getenv(""))
+genai.configure(api_key=os.getenv("AIzaSyCsy9AtGiPeKZZiXVsuC1fNUWhKxG_6jwQ"))
 
 model = genai.GenerativeModel("gemini-2.0-flash")
 
