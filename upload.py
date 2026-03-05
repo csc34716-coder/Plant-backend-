@@ -7,7 +7,7 @@ from ai_service import analyze_plant
 
 upload_bp = Blueprint("upload", name)
 
-Cloudinary config (use environment variables)
+#Cloudinary config (use environment variables)
 
 cloudinary.config(
 cloud_name=os.getenv("257257425648316"),
