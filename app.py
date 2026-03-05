@@ -14,5 +14,4 @@ def home():
 return "Plant AI Backend Running Successfully"
 
 if name == "main":
-app.run(host="0.0.0.0", port=5000) 
-
+app.run(host="0.0.0.0", port=5000)
