@@ -2,19 +2,19 @@ import google.generativeai as genai
 import os
 import json
 
-Gemini API key
-
-genai.configure(api_key=os.getenv("AIzaSyCsy9AtGiPeKZZiXVsuC1fNUWhKxG_6jwQ"))
+# Configure Gemini API key (from environment variable)
+genai.configure(api_key=os.getenv("AIzaSyCsy9AtGiPeKZZiXVsuC1fNUWhKxG_6jwQ")
 
 model = genai.GenerativeModel("gemini-2.0-flash")
 
+
 def analyze_plant(image_path, user_query=""):
 
-with open(image_path, "rb") as f:
-    image_bytes = f.read()
+    # read image
+    with open(image_path, "rb") as f:
+        image_bytes = f.read()
 
-prompt = f"""
-
+    prompt = f"""
 You are a professional plant disease expert.
 
 Analyze the plant image carefully.
@@ -30,25 +30,26 @@ Return ONLY valid JSON in this format:
 }}
 """
 
-response = model.generate_content([
-    prompt,
-    {
-        "mime_type": "image/jpeg",
-        "data": image_bytes
-    }
-])
+    response = model.generate_content([
+        prompt,
+        {
+            "mime_type": "image/jpeg",
+            "data": image_bytes
+        }
+    ])
 
-text = response.text.strip()
+    text = response.text.strip()
 
-# remove markdown formatting if present
-if text.startswith("```"):
-    text = text.replace("```json", "").replace("```", "").strip()
+    # remove markdown formatting if present
+    if text.startswith("```"):
+        text = text.replace("```json", "").replace("```", "").strip()
 
-try:
-    return json.loads(text)
-except:
-    return {
-        "status": "error",
-        "disease": "unknown",
-        "treatment": text
-    }
+    try:
+        return json.loads(text)
+
+    except Exception:
+        return {
+            "status": "error",
+            "disease": "unknown",
+            "treatment": text
+        }
