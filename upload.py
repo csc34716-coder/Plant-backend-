@@ -24,7 +24,7 @@ def upload_image():
         return jsonify({"success": False, "error": "No image uploaded"}), 400
 
     file = request.files['image']
-    user_query = request.form.get("query", "")
+    user_query = request.form.get("user_query", "")
 
     filename = str(uuid.uuid4()) + ".jpg"
     filepath = os.path.join(UPLOAD_FOLDER, filename)
