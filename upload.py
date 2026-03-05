@@ -5,52 +5,55 @@ import cloudinary
 import cloudinary.uploader
 from ai_service import analyze_plant
 
-upload_bp = Blueprint("upload", __name__)
+upload_bp = Blueprint("upload", name)
 
-# Cloudinary config
+Cloudinary config (use environment variables)
+
 cloudinary.config(
-    cloud_name=os.getenv("drtcekb5x"),
-    api_key=os.getenv("257257425648316"),
-    api_secret=os.getenv("apieZE8537oBAXVG9WXUS13xDqE")
+cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+api_key=os.getenv("CLOUDINARY_API_KEY"),
+api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
 @upload_bp.route("/upload", methods=["POST"])
 def upload_image():
 
-    if 'image' not in request.files:
-        return jsonify({"success": False, "error": "No image uploaded"}), 400
+if 'image' not in request.files:
+    return jsonify({"success": False, "error": "No image uploaded"}), 400
 
-    file = request.files['image']
+file = request.files['image']
 
-    # user query from frontend
-    user_query = request.form.get("user_query", "")
+# user question from frontend
+user_query = request.form.get("query", "")
 
-    # save temporary
-    filename = str(uuid.uuid4()) + ".jpg"
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
+# save temporary file
+filename = str(uuid.uuid4()) + ".jpg"
+filepath = os.path.join(UPLOAD_FOLDER, filename)
 
-    file.save(filepath)
+file.save(filepath)
 
-    try:
-        # upload to cloudinary
-        upload_result = cloudinary.uploader.upload(filepath)
-        image_url = upload_result["secure_url"]
+try:
 
-        # AI analysis
-        result = analyze_plant(filepath, user_query)
+    # upload image to cloudinary
+    upload_result = cloudinary.uploader.upload(filepath)
+    image_url = upload_result["secure_url"]
 
-        return jsonify({
-            "success": True,
-            "image_url": image_url,
-            "data": result
-        })
+    # AI analysis
+    result = analyze_plant(filepath, user_query)
 
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+    return jsonify({
+        "success": True,
+        "image_url": image_url,
+        "status": result.get("status"),
+        "disease": result.get("disease"),
+        "treatment": result.get("treatment")
+    })
+
+except Exception as e:
+    return jsonify({
+        "success": False,
+        "error": str(e)
+    }), 500
