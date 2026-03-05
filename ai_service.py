@@ -2,15 +2,13 @@ import google.generativeai as genai
 import os
 import json
 
-# Configure Gemini API key (from environment variable)
-genai.configure(api_key=os.getenv("AIzaSyCsy9AtGiPeKZZiXVsuC1fNUWhKxG_6jwQ"))
+# Gemini API key from environment variable
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-model = genai.GenerativeModel("gemini-2.0-flash")
-
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def analyze_plant(image_path, user_query=""):
 
-    # read image
     with open(image_path, "rb") as f:
         image_bytes = f.read()
 
@@ -40,16 +38,15 @@ Return ONLY valid JSON in this format:
 
     text = response.text.strip()
 
-    # remove markdown formatting if present
+    # remove markdown if AI returns ```json
     if text.startswith("```"):
         text = text.replace("```json", "").replace("```", "").strip()
 
     try:
         return json.loads(text)
-
-    except Exception:
+    except:
         return {
             "status": "error",
             "disease": "unknown",
             "treatment": text
-        }
+    }
