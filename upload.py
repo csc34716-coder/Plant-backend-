@@ -10,9 +10,9 @@ upload_bp = Blueprint("upload", name)
 Cloudinary config (use environment variables)
 
 cloudinary.config(
-cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-api_key=os.getenv("CLOUDINARY_API_KEY"),
-api_secret=os.getenv("CLOUDINARY_API_SECRET")
+cloud_name=os.getenv("257257425648316"),
+api_key=os.getenv("drtcekb5x"),
+api_secret=os.getenv("apieZE8537oBAXVG9WXUS13xDqE")
 )
 
 UPLOAD_FOLDER = "uploads"
