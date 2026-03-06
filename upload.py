@@ -3,14 +3,13 @@ from flask import Flask, Blueprint, request, jsonify
 import os
 import uuid
 from dotenv import load_dotenv
-from PIL import Image
 import cloudinary
 import cloudinary.uploader
 
-# Load environment variables from .env (local testing)
+# Load environment variables from .env (for local testing)
 load_dotenv()
 
-# Initialize Flask app (if not already)
+# Initialize Flask app
 app = Flask(__name__)
 
 # Configure Cloudinary
@@ -27,14 +26,14 @@ upload_bp = Blueprint("upload", __name__)
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Import your AI service
-from ai_service import analyze_plant  # ensure analyze_plant can accept PIL.Image.Image
+# Import AI service
+from ai_service import analyze_plant  # expects file path, not PIL.Image.Image
 
 
 @upload_bp.route("/upload", methods=["POST"])
 def upload_image():
     try:
-        # 1️⃣ Check if file exists in request
+        # 1️⃣ Check if file exists
         if 'image' not in request.files:
             return jsonify({"success": False, "error": "No image uploaded"}), 400
 
@@ -50,11 +49,14 @@ def upload_image():
         upload_result = cloudinary.uploader.upload(filepath)
         image_url = upload_result["secure_url"]
 
-        # 4️⃣ Open image as PIL.Image for AI analysis
-        image = Image.open(filepath)
-        result = analyze_plant(image, user_query)
+        # 4️⃣ Run AI analysis using file path
+        result = analyze_plant(filepath, user_query)
 
-        # 5️⃣ Return result
+        # 5️⃣ Optional: delete local file to save space
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+        # 6️⃣ Return result
         return jsonify({
             "success": True,
             "image_url": image_url,
@@ -72,6 +74,7 @@ def upload_image():
 # Register blueprint to app
 app.register_blueprint(upload_bp)
 
-# Run app if standalone
+# Run app standalone
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
