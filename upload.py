@@ -50,4 +50,28 @@ def upload_image():
         upload_result = cloudinary.uploader.upload(filepath)
         image_url = upload_result["secure_url"]
 
-        # 4️⃣
+        # 4️⃣ Open image as PIL.Image for AI analysis
+        image = Image.open(filepath)
+        result = analyze_plant(image, user_query)
+
+        # 5️⃣ Return result
+        return jsonify({
+            "success": True,
+            "image_url": image_url,
+            "data": result
+        })
+
+    except Exception as e:
+        print("UPLOAD ERROR:", e)
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+# Register blueprint to app
+app.register_blueprint(upload_bp)
+
+# Run app if standalone
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
