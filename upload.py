@@ -44,7 +44,8 @@ def upload_image():
         })
 
     except Exception as e:
+        print("UPLOAD ERROR:", e)
         return jsonify({
-            "success": False,
-            "error": str(e)
+           "success": False,
+           "error": str(e)
         }), 500
