@@ -4,3 +4,4 @@ cloudinary
 google-generativeai
 python-dotenv
 Pillow
+gunicorn
