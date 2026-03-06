@@ -1,4 +1,3 @@
-# ai_service.py
 import google.generativeai as genai
 import os
 import json
@@ -9,19 +8,17 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 # Initialize model
 model = genai.GenerativeModel("gemini-1.5-flash")
 
+
 def analyze_plant(image_path: str, user_query: str = "") -> dict:
     """
     Analyze a plant image using Google Gemini AI.
-    
+
     Args:
         image_path (str): Path to the image file.
         user_query (str): Optional user question about the plant.
-        
+
     Returns:
-        dict: JSON-compatible dictionary with keys:
-            - status: "healthy" or "diseased"
-            - disease: disease name or "none"
-            - treatment: recommended treatment
+        dict: Always contains keys 'disease' and 'treatment'
     """
     try:
         # Read image bytes
@@ -36,12 +33,13 @@ Analyze the plant image carefully.
 
 User Question: {user_query}
 
-Return ONLY valid JSON:
+Return ONLY valid JSON with keys: status, disease, treatment
 
+Example:
 {{
-    "status":"healthy or diseased",
-    "disease":"name of disease or none",
-    "treatment":"detailed treatment"
+    "status":"healthy",
+    "disease":"none",
+    "treatment":"No treatment needed"
 }}
 """
 
@@ -55,12 +53,17 @@ Return ONLY valid JSON:
             text = text.replace("```json", "").replace("```", "").strip()
 
         # Parse JSON response
-        return json.loads(text)
+        result = json.loads(text)
+
+        # Ensure keys exist and match frontend
+        disease = result.get("disease", "Unknown")
+        treatment = result.get("treatment", "Not available")
+
+        return {"disease": disease, "treatment": treatment}
 
     except Exception as e:
         # Fallback if parsing fails
         return {
-            "status": "error",
-            "disease": "unknown",
-            "treatment": f"Could not analyze image: {str(e)}"
+            "disease": "Could not analyze image",
+            "treatment": f"Error: {str(e)}"
         }
