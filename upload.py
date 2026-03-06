@@ -1,12 +1,12 @@
-# upload.py
 from flask import Flask, Blueprint, request, jsonify
 import os
 import uuid
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
+from PIL import Image  # ✅ Import PIL for image handling
 
-# Load environment variables from .env (for local testing)
+# Load environment variables
 load_dotenv()
 
 # Initialize Flask app
@@ -22,18 +22,18 @@ cloudinary.config(
 # Blueprint setup
 upload_bp = Blueprint("upload", __name__)
 
-# Create uploads folder if not exists
+# Create uploads folder if it doesn't exist
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Import AI service
-from ai_service import analyze_plant  # expects file path, not PIL.Image.Image
+# Import AI service (expects PIL.Image.Image now)
+from ai_service import analyze_plant  # make sure it can accept PIL.Image.Image
 
 
 @upload_bp.route("/upload", methods=["POST"])
 def upload_image():
     try:
-        # 1️⃣ Check if file exists
+        # 1️⃣ Check if a file is included
         if 'image' not in request.files:
             return jsonify({"success": False, "error": "No image uploaded"}), 400
 
@@ -49,8 +49,9 @@ def upload_image():
         upload_result = cloudinary.uploader.upload(filepath)
         image_url = upload_result["secure_url"]
 
-        # 4️⃣ Run AI analysis using file path
-        result = analyze_plant(filepath, user_query)
+        # 4️⃣ Open image as PIL and run AI analysis
+        pil_image = Image.open(filepath)  # ✅ Convert to PIL.Image
+        result = analyze_plant(pil_image, user_query)
 
         # 5️⃣ Optional: delete local file to save space
         if os.path.exists(filepath):
