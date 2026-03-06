@@ -4,7 +4,6 @@ import uuid
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
-from PIL import Image  # ✅ Import PIL for image handling
 
 # Load environment variables
 load_dotenv()
@@ -26,8 +25,8 @@ upload_bp = Blueprint("upload", __name__)
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Import AI service (expects PIL.Image.Image now)
-from ai_service import analyze_plant  # make sure it can accept PIL.Image.Image
+# Import AI service (expects file path)
+from ai_service import analyze_plant  # expects file path
 
 
 @upload_bp.route("/upload", methods=["POST"])
@@ -49,11 +48,10 @@ def upload_image():
         upload_result = cloudinary.uploader.upload(filepath)
         image_url = upload_result["secure_url"]
 
-        # 4️⃣ Open image as PIL and run AI analysis
-        pil_image = Image.open(filepath)  # ✅ Convert to PIL.Image
+        # 4️⃣ Run AI analysis using file path
         result = analyze_plant(filepath, user_query)
 
-        # 5️⃣ Optional: delete local file to save space
+        # 5️⃣ Delete local file to save space
         if os.path.exists(filepath):
             os.remove(filepath)
 
@@ -75,7 +73,7 @@ def upload_image():
 # Register blueprint to app
 app.register_blueprint(upload_bp)
 
-# Run app standalone
+# Run app
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Render provides this
+    app.run(host="0.0.0.0", port=port, debug=False)
