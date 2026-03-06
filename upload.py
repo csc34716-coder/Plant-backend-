@@ -21,41 +21,45 @@ cloudinary.config(
 # Blueprint setup
 upload_bp = Blueprint("upload", __name__)
 
-# Create uploads folder if it doesn't exist
+# Create uploads folder
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Import AI service (expects file path)
+# Import AI service
 from ai_service import analyze_plant  # expects file path
 
 
 @upload_bp.route("/upload", methods=["POST"])
 def upload_image():
     try:
-        # 1️⃣ Check if a file is included
         if 'image' not in request.files:
             return jsonify({"success": False, "error": "No image uploaded"}), 400
 
         file = request.files['image']
         user_query = request.form.get("user_query", "")
 
-        # 2️⃣ Save file temporarily
+        # Save file temporarily
         filename = str(uuid.uuid4()) + ".jpg"
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
 
-        # 3️⃣ Upload to Cloudinary
+        # Upload to Cloudinary
         upload_result = cloudinary.uploader.upload(filepath)
-        image_url = upload_result["secure_url"]
+        image_url = upload_result.get("secure_url", "")
 
-        # 4️⃣ Run AI analysis using file path
-        result = analyze_plant(filepath, user_query)
+        # Run AI analysis
+        raw_result = analyze_plant(filepath, user_query)
 
-        # 5️⃣ Delete local file to save space
+        # Make sure the result has keys frontend expects
+        result = {
+            "disease": raw_result.get("disease", "Unknown"),
+            "treatment": raw_result.get("treatment", "Not available")
+        }
+
+        # Delete local file
         if os.path.exists(filepath):
             os.remove(filepath)
 
-        # 6️⃣ Return result
         return jsonify({
             "success": True,
             "image_url": image_url,
@@ -64,16 +68,14 @@ def upload_image():
 
     except Exception as e:
         print("UPLOAD ERROR:", e)
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-# Register blueprint to app
+# Register blueprint
 app.register_blueprint(upload_bp)
 
 # Run app
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render provides this
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+       
