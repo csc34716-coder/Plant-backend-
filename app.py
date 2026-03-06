@@ -12,5 +12,4 @@ app.register_blueprint(upload_bp)
 def home():
     return "Plant AI Backend Running Successfully"
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+
