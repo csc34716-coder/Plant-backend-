@@ -51,7 +51,7 @@ def upload_image():
 
         # 4️⃣ Open image as PIL and run AI analysis
         pil_image = Image.open(filepath)  # ✅ Convert to PIL.Image
-        result = analyze_plant(pil_image, user_query)
+        result = analyze_plant(filepath, user_query)
 
         # 5️⃣ Optional: delete local file to save space
         if os.path.exists(filepath):
